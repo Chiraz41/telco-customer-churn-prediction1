@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Données et artefacts générés (reproductibles via `python -m churn.train`)
+data/*.csv
+artifacts/*
+!artifacts/.gitkeep
+reports/figures/*
+!reports/figures/.gitkeep
+*.log
+churn_artifacts.zip
+
+# Éditeur / OS
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.DS_Store
