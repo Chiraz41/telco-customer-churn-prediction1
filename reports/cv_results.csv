@@ -1,0 +1,6 @@
+Modèle,Meilleure AUC-ROC CV,Meilleurs paramètres,Temps (s)
+XGBoost,0.8495570074507999,"{""subsample"": 0.8, ""n_estimators"": 300, ""max_depth"": 4, ""learning_rate"": 0.01, ""colsample_bytree"": 0.8}",3.89
+Logistic Regression,0.8461878626160437,"{""solver"": ""liblinear"", ""C"": 10}",6.66
+Random Forest,0.8453005836944756,"{""n_estimators"": 200, ""min_samples_split"": 5, ""min_samples_leaf"": 2, ""max_features"": ""log2"", ""max_depth"": 10}",3.9
+Decision Tree,0.8084811959775102,"{""min_samples_split"": 10, ""min_samples_leaf"": 10, ""max_depth"": 8}",1.17
+KNN,0.8060095385196018,"{""weights"": ""uniform"", ""p"": 1, ""n_neighbors"": 9}",2.8

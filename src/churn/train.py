@@ -18,7 +18,7 @@ from .data import load_raw, prepare_xy, split
 from .evaluate import evaluate_models, save_figures, threshold_analysis
 from .features import build_preprocessor, build_ui_schema
 from .models import PARAM_DISTRIBUTIONS, get_models
-
+from .explain import run_global_explanations
 
 def main(data_path: str | None = None) -> None:
     C.ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
@@ -100,7 +100,12 @@ def main(data_path: str | None = None) -> None:
         json.dump(metadata, f, indent=4, ensure_ascii=False)
     with open(C.ARTIFACT_DIR / "ui_schema.json", "w", encoding="utf-8") as f:
         json.dump(build_ui_schema(X_train), f, indent=2, ensure_ascii=False)
-
+    run_global_explanations(best_models, final_model, preprocess,
+        X_test, y_test, best_threshold)
+    X_train.sample(1000, random_state=C.RANDOM_STATE).to_csv(
+        C.ARTIFACT_DIR / "background.csv", index=False)      # fond pour LIME
+    X_test.assign(Churn=y_test.values).to_csv(
+        C.ARTIFACT_DIR / "test_set.csv", index=False)        # sélection d'un individu 
     print(f"\nArtefacts sauvegardés dans {C.ARTIFACT_DIR}")
 
 

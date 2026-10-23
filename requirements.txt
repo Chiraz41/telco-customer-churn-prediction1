@@ -16,3 +16,5 @@ uvicorn[standard]>=0.29
 pydantic>=2.6
 streamlit>=1.33
 requests>=2.31
+shap>=0.45
+lime>=0.2.0.1
