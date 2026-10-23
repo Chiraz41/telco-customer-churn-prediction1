@@ -38,9 +38,11 @@ telco-churn/
 │   ├── features.py                        #   pipeline de prétraitement, schéma UI
 │   ├── models.py                          #   5 modèles + espaces d'hyperparamètres
 │   ├── evaluate.py                        #   métriques, seuils, coût, figures
+│   ├── explain.py                         #   Module 5 : SHAP, LIME, permutation, équité
 │   └── train.py                           #   entraînement + sauvegarde des artefacts
 ├── api/main.py                            # API FastAPI (/health, /predict)
 ├── app/streamlit_app.py                   # Interface web Streamlit
+├── app/pages/2_Explicabilite.py           # Page Streamlit « Explicabilité » (XAI)
 ├── tests/                                 # Tests pytest (données synthétiques)
 ├── artifacts/                             # Modèle, prétraitement, métadonnées (générés)
 ├── reports/                               # Métriques CSV et figures (générés)
@@ -113,6 +115,48 @@ Les tests utilisent un jeu de données synthétique : aucun accès à OpenML n'e
 
 Dans VS Code, le menu *Run and Debug* propose aussi les trois configurations
 « Entraîner les modèles », « API FastAPI » et « Interface Streamlit ».
+
+## Module 5 — Explainable AI
+
+Le module `src/churn/explain.py` explique **pourquoi** le modèle prédit un départ.
+
+**Explications globales** (le modèle dans son ensemble)
+- importance propre au modèle : coefficients (régression logistique), importance par impureté (arbres, Random Forest, XGBoost) ;
+- importance par permutation (baisse d'AUC), comparable entre les 5 modèles ;
+- SHAP summary (beeswarm) et graphiques de dépendance SHAP pour les 4 variables principales.
+
+**Explications locales** (un client donné)
+- sélection d'un client du jeu de test ou formulaire (client fictif) ;
+- probabilité prédite et décision au seuil choisi ;
+- SHAP waterfall, explication LIME du même client et tableau de comparaison SHAP / LIME ;
+- phrase de synthèse générée automatiquement.
+
+**Équité** : taux d'alerte, recall et taux de faux positifs par groupe (`gender`, `SeniorCitizen`,
+`Partner`, `Dependents`) et test contrefactuel (variation de probabilité si seule la variable sensible change).
+
+### Utilisation
+
+```bash
+pip install -r requirements.txt      # inclut shap et lime
+pip install -e .
+python -m churn.train                # génère aussi les figures et tableaux XAI
+streamlit run app/streamlit_app.py   # puis page « Explicabilite » du menu latéral
+```
+
+`python -m churn.train` produit en plus :
+- `reports/figures/` : `native_importance.png`, `permutation_importance.png`, `shap_beeswarm.png`, `shap_dependence_*.png` ;
+- `reports/` : `permutation_importance.csv`, `shap_importance_by_variable.csv`, `fairness_by_group.csv`, `counterfactual_sensitive.csv` ;
+- `artifacts/` : `background.csv` (fond LIME) et `test_set.csv` (clients sélectionnables dans l'interface).
+
+Dans le notebook, la section **5.7 Explainable AI** reprend les mêmes analyses (nécessite `pip install -e .`).
+
+### Points d'attention
+
+- Les valeurs SHAP sont exprimées en **log-odds**, pas en probabilité.
+- XGBoost est entraîné avec `scale_pos_weight` : sa probabilité est surestimée, le seuil n'est donc pas une probabilité réelle de départ.
+- Les colonnes One-Hot sont regroupées par variable d'origine (ex. tous les `Contract_*`) dans les tableaux et la phrase de synthèse.
+- LIME est stochastique (`random_state` fixé) : ses poids sont moins stables que ceux de SHAP.
+- Les figures et artefacts sont ignorés par git (`.gitignore`) : ils se régénèrent avec `python -m churn.train`.
 
 ## Choix méthodologiques
 
